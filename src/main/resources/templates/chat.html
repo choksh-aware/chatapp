@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chat</title>
+</head>
+<body>
+    <h1>Chat</h1>
+    <div id="messages"></div>
+    <input type="text" id="messageInput" placeholder="Type a message" />
+    <button id="sendMessageButton">Send</button>
+    <br/>
+    <a href="/logout">Logout</a>
+
+    <script>
+        // Create a WebSocket connection
+        var ws = new WebSocket("ws://localhost:8080/chat");
+        
+        // Reference to DOM elements
+        var messageInput = document.getElementById('messageInput');
+        var sendMessageButton = document.getElementById('sendMessageButton');
+        var messages = document.getElementById('messages');
+
+        // Function to handle incoming WebSocket messages
+        ws.onmessage = function(event) {
+            var message = document.createElement('div');
+            message.textContent = event.data;
+            messages.appendChild(message);
+        };
+
+        // Function to handle sending messages
+        sendMessageButton.onclick = function() {
+            var message = messageInput.value;
+            if (message.trim() !== "") {
+                ws.send(message);
+                messageInput.value = ''; // Clear the input field
+            }
+        };
+
+        // Optional: Handle Enter key to send messages
+        messageInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                sendMessageButton.click();
+            }
+        });
+
+        // Handle WebSocket connection close
+        ws.onclose = function(event) {
+            console.log('WebSocket connection closed:', event);
+        };
+
+        // Handle WebSocket errors
+        ws.onerror = function(event) {
+            console.error('WebSocket error:', event);
+        };
+    </script>
+</body>
+</html>
+
